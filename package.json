@@ -1,5 +1,5 @@
 {
-  "name": "@slashjs/handler",
+  "name": "@slash.js/handler",
   "version": "0.0.1",
   "description": "handler haha",
   "main": "./dist/index.js",
