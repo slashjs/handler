@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "ts-node test/index.ts"
+    "test": "ts-node test/index.ts",
+    "install": "npx tsc"
   },
   "author": "MARCROCK22",
   "license": "Apache-2.0",
