@@ -1,19 +1,18 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import * as SlashJS from '@slash.js/core';
 import dotenv from 'dotenv';
 import { Handler } from '../src/index';
 import { Command } from '../src/interfaces/command';
 
 dotenv.config();
 
-const server = new SlashJS.Server({
+const server = new Handler({
     publicKey: process.env.PUBLIC_KEY as string,
     token: process.env.BOT_TOKEN as string,
     path: '/',
+    port: 3000
 });
 
 server.on('ready', () => {
-    console.log('Ready');
+    console.log('Ready', 'xd');
 }).on('error', (error) => {
     console.error(error);
 });
@@ -29,8 +28,19 @@ const commands: Command[] = [{
             type: 1,
             name: 'cinco',
             description: 'xd',
+            options: [{
+                name: 'test',
+                type: 3,
+                description: 'autocomplete',
+                autocomplete: true,
+                onAutocomplete(interaction) {
+                    const value = (interaction.options.getString('test') || 'no-value') + 'ggg';
+                    interaction.send([{ name: value, value }]);
+                }
+            }],
             execute(interaction) {
-                interaction.reply({ content: 'test desde @slashjs/handler' });
+                const value = interaction.options.getString('test') || 'no-value';
+                interaction.reply({ content: 'test desde @slash.js/handler ' + value });
             }
         }]
     }]
@@ -43,25 +53,19 @@ const commands: Command[] = [{
         description: 'autocomplete',
         autocomplete: true,
         onAutocomplete(interaction) {
-            console.log(interaction.send([{ name: 'xd', value: 'gg' }]));
+            const value = interaction.options.getString('test') || 'no-value';
+            interaction.send([{ name: value, value }]);
         }
-    }]
+    }],
+    execute(interaction) {
+        const value = interaction.options.getString('test');
+        interaction.reply({ content: value || 'no-value' });
+    }
 }];
 
-const han = new Handler(commands, server);
+server.commands = commands;
 
-server.on('raw', (interaction, reply) => {
-    switch (interaction.type) {
-        case 2: {
-            switch (interaction.data.type) {
-                case 1:
-                    han.handleCommand(interaction, reply);
-                    break;
-            }
-            break;
-        }
-        case 4:
-            han.handleAutocomplete(interaction, reply);
-            break;
-    }
-});
+server.rest.interaction.bulkOverwriteApplicationCommands('829828127399870504', commands)
+    .then(() => {
+        console.log('Bulk overwritten');
+    }).catch(console.error);
