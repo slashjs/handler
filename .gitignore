@@ -15,5 +15,3 @@ dist/
 .tmp/
 .idea/
 .DS_Store
-
-package-lock.json
