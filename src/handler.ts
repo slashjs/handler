@@ -12,9 +12,6 @@ export class Handler extends Server {
         this.on('autocomplete', (data) => {
             this.handleAutocomplete(data);
         });
-        this.on('raw', (data) => {
-            console.log(data);
-        });
     }
 
     async handleCommand(interaction: CommandInteraction) {
