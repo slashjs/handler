@@ -1,8 +1,8 @@
-import { Command, CommandGroups, CommandOptions, Options } from './interfaces/command';
+import { Command, CommandGroups, CommandOptions, Options, ResolvableCommand } from './interfaces/command';
 import { AutocompleteInteraction, CommandInteraction, Server, ServerOptions } from '@slash.js/core';
 
 export class Handler extends Server {
-    commands: Command[] = [];
+    commands: ResolvableCommand[] = [];
 
     constructor(options: ServerOptions) {
         super(options);
@@ -12,10 +12,14 @@ export class Handler extends Server {
         this.on('autocomplete', (data) => {
             this.handleAutocomplete(data);
         });
+        this.on('raw', (data) => {
+            console.log(data);
+        });
     }
 
     async handleCommand(interaction: CommandInteraction) {
-        const getted = getCommand(this.commands.find(x => x.name == interaction.name)) as CommandOptions;
+        const comandos = this.commands.filter(x => x.type == 1) as Command[];
+        const getted = getCommand(comandos.find(x => x.name == interaction.name)) as CommandOptions;
         const apigetted = getApiCommand(interaction.data);
 
         if (getted?.name == apigetted?.name) {
@@ -46,7 +50,8 @@ export class Handler extends Server {
     }
 
     handleAutocomplete(interaction: AutocompleteInteraction) {
-        const getted = getCommand(this.commands.find(x => x.name == interaction.commandName));
+        const comandos = this.commands.filter(x => x.type == 1) as Command[];
+        const getted = getCommand(comandos.find(x => x.name == interaction.commandName));
         const apigetted = getApiCommand(interaction.data as {
             //TODO: better types
             name: string;
@@ -70,7 +75,7 @@ export class Handler extends Server {
 
 }
 
-function getCommand(cmd?: Command | CommandOptions): Command | CommandOptions {
+function getCommand(cmd?: Omit<Command, 'type'> | Omit<CommandOptions, 'type'>): Omit<Command, 'type'> | Omit<CommandOptions, 'type'> {
     if (!cmd) throw new Error('Command not found');
     if (!cmd.options) return cmd;
     if (!cmd.options.some(x => (x.type == 2) || (x.type == 1))) return cmd;

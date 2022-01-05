@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Handler } from '../src/index';
-import { Command } from '../src/interfaces/command';
+import { ResolvableCommand } from '../src/interfaces/command';
 
 dotenv.config();
 
@@ -17,7 +17,8 @@ server.on('ready', () => {
     console.error(error);
 });
 
-const commands: Command[] = [{
+const commands: ResolvableCommand[] = [{
+    type: 1,
     name: 'testing',
     description: 'gg',
     options: [{
@@ -57,6 +58,7 @@ const commands: Command[] = [{
         }]
     }]
 }, {
+    type: 1,
     name: 'autocomplete',
     description: 'autocomplete',
     options: [{
@@ -73,7 +75,13 @@ const commands: Command[] = [{
         const value = interaction.options.getString('test');
         interaction.reply({ content: value || 'no-value' });
     }
-}];
+}, {
+    type: 2,
+    name: 'owo',
+    execute(interaction) {
+        interaction.reply({ content: 'owo' });
+    }
+}];//!Not supported yet
 
 server.commands = commands;
 

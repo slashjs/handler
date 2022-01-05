@@ -1,11 +1,32 @@
 import { AutocompleteInteraction, CommandInteraction } from '@slash.js/core';
 
+export type ResolvableCommand = Command | ContextMenuMessage | ContextMenuUser;
+
 export type Command = {
+    type: 1;
     description: string;
     name: string;
     options?: Options[] | CommandOptions[] | CommandGroups[];
     onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
     execute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
+};
+
+export type ContextMenuUser = {
+    type: 2;
+    name: string;
+    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
+    execute: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
+};
+
+export type ContextMenuMessage = {
+    type: 3;
+    name: string;
+    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
+    execute: (interaction: CommandInteraction) => Promise<unknown> | unknown;
     onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
     onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
 };
