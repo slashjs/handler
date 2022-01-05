@@ -1,18 +1,24 @@
 import { AutocompleteInteraction, CommandInteraction } from '@slash.js/core';
 
-export interface Command {
+export type Command = {
     description: string;
     name: string;
-    options?: CommandOptions[] | CommandGroups[] | Options[];
-    execute?: (interaction: CommandInteraction) => void;
-}
+    options?: Options[] | CommandOptions[] | CommandGroups[];
+    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
+    execute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
+};
 
 export interface CommandOptions {
     type: 1;
     options?: Options[];
     name: string;
     description: string;
-    execute: (interaction: CommandInteraction) => void;
+    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
+    execute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
 }
 
 export interface CommandGroups {

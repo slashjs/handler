@@ -38,9 +38,21 @@ const commands: Command[] = [{
                     interaction.send([{ name: value, value }]);
                 }
             }],
+            onBeforeExecute(interaction) {
+                return interaction.user.id == interaction.user.id;
+            },
             execute(interaction) {
                 const value = interaction.options.getString('test') || 'no-value';
                 interaction.reply({ content: 'test desde @slash.js/handler ' + value });
+            },
+            onCancelExecute(interaction) {
+                return interaction.reply({ content: 'cancelado' });
+            },
+            onErrorExecute(interaction, error) {
+                console.error(error);
+                interaction[interaction.res.sent ? 'editReply' : 'reply']({
+                    content: error instanceof Error ? error.toString() : 'error',
+                });
             }
         }]
     }]

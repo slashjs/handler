@@ -14,11 +14,35 @@ export class Handler extends Server {
         });
     }
 
-    handleCommand(interaction: CommandInteraction) {
-        const getted = getCommand(this.commands.find(x => x.name == interaction.name));
+    async handleCommand(interaction: CommandInteraction) {
+        const getted = getCommand(this.commands.find(x => x.name == interaction.name)) as CommandOptions;
         const apigetted = getApiCommand(interaction.data);
-        if (getted?.name == apigetted?.name)
-            if (getted.execute) getted.execute(interaction);
+
+        if (getted?.name == apigetted?.name) {
+            if (!getted.execute) return;
+            try {
+                if (typeof getted.onBeforeExecute == 'function') {
+                    const result = await getted.onBeforeExecute(interaction);
+                    if (!result) {
+                        this.emit('commandCanceled', interaction);
+                        if (typeof getted.onCancelExecute == 'function') {
+                            await getted.onCancelExecute(interaction);
+                        }
+                    } else {
+                        await getted.execute(interaction);
+                        return this.emit('commandExecuted', interaction);
+                    }
+                } else {
+                    await getted.execute(interaction);
+                    return this.emit('commandExecuted', interaction);
+                }
+            } catch (e) {
+                this.emit('commandError', interaction, e);
+                if (typeof getted.onErrorExecute == 'function') {
+                    return await getted.onErrorExecute(interaction, e);
+                }
+            }
+        }
     }
 
     handleAutocomplete(interaction: AutocompleteInteraction) {
