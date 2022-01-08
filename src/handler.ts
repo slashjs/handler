@@ -1,16 +1,23 @@
 import { Command, CommandGroups, CommandOptions, Options, ResolvableCommand } from './interfaces/command';
 import { AutocompleteInteraction, CommandInteraction, Server, ServerOptions } from '@slash.js/core';
 
+export interface HandlerEventsOptions {
+    onCommandCheck?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
+    onAutocomplete?: (interaction: AutocompleteInteraction) => Promise<boolean> | boolean;
+}
+
 export class Handler extends Server {
     commands: ResolvableCommand[] = [];
 
-    constructor(options: ServerOptions) {
+    constructor(options: ServerOptions, eventsOptions: HandlerEventsOptions = {}) {
         super(options);
-        this.on('command', data => {
-            this.handleCommand(data);
+        this.on('command', async data => {
+            if (!eventsOptions.onCommandCheck || await eventsOptions.onCommandCheck(data))
+                this.handleCommand(data);
         });
-        this.on('autocomplete', (data) => {
-            this.handleAutocomplete(data);
+        this.on('autocomplete', async data => {
+            if (!eventsOptions.onAutocomplete || await eventsOptions.onAutocomplete(data))
+                this.handleAutocomplete(data);
         });
     }
 
