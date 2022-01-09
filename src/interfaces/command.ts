@@ -1,4 +1,7 @@
-import { AutocompleteInteraction, CommandInteraction } from '@slash.js/core';
+import {
+    AutocompleteInteraction, CommandInteraction,
+    MessageContextInteraction, UserContextInteraction
+} from '@slash.js/core';
 
 export type ResolvableCommand = Command | ContextMenuMessage | ContextMenuUser;
 
@@ -16,19 +19,19 @@ export type Command = {
 export type ContextMenuUser = {
     type: 2;
     name: string;
-    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
-    execute: (interaction: CommandInteraction) => Promise<unknown> | unknown;
-    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
-    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
+    onBeforeExecute?: (interaction: UserContextInteraction) => Promise<boolean> | boolean;
+    execute: (interaction: UserContextInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: UserContextInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: UserContextInteraction, error: unknown) => Promise<unknown> | unknown;
 };
 
 export type ContextMenuMessage = {
     type: 3;
     name: string;
-    onBeforeExecute?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
-    execute: (interaction: CommandInteraction) => Promise<unknown> | unknown;
-    onCancelExecute?: (interaction: CommandInteraction) => Promise<unknown> | unknown;
-    onErrorExecute?: (interaction: CommandInteraction, error: unknown) => Promise<unknown> | unknown;
+    onBeforeExecute?: (interaction: MessageContextInteraction) => Promise<boolean> | boolean;
+    execute: (interaction: MessageContextInteraction) => Promise<unknown> | unknown;
+    onCancelExecute?: (interaction: MessageContextInteraction) => Promise<unknown> | unknown;
+    onErrorExecute?: (interaction: MessageContextInteraction, error: unknown) => Promise<unknown> | unknown;
 };
 
 export interface CommandOptions {

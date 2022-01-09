@@ -13,7 +13,7 @@
   "author": "MARCROCK22",
   "license": "Apache-2.0",
   "dependencies": {
-    "@slash.js/core": "github:slashjs/slash.js#4f214df7f5a5670a089c17838f32a6887aea6d3a",
+    "@slash.js/core": "github:slashjs/slash.js#34782824739706647332ca1ece2843a7486b3d85",
     "fastify": "^3.25.3"
   },
   "devDependencies": {

@@ -1,9 +1,28 @@
 import { Command, CommandGroups, CommandOptions, Options, ResolvableCommand } from './interfaces/command';
-import { AutocompleteInteraction, CommandInteraction, Server, ServerOptions } from '@slash.js/core';
+import { AutocompleteInteraction, CommandInteraction, ContextMenuInteraction, MessageContextInteraction, Server, ServerOptions, UserContextInteraction } from '@slash.js/core';
+import fs from 'fs/promises';
+import path from 'path';
+
+async function getFiles(dir: string): Promise<string[]> {
+
+    const todo = await fs.readdir(dir, { withFileTypes: true });
+    const names = [];
+
+    for (const folder of todo) {
+        if (folder.isDirectory()) {
+            const files = await getFiles(path.join(dir, folder.name));
+            for (const file of files) names.push(file);
+        } else names.push(path.join(dir, folder.name));
+    }
+
+    return names;
+
+}
 
 export interface HandlerEventsOptions {
     onCommandCheck?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
-    onAutocomplete?: (interaction: AutocompleteInteraction) => Promise<boolean> | boolean;
+    onAutocompleteCheck?: (interaction: AutocompleteInteraction) => Promise<boolean> | boolean;
+    onContextMenuCheck?: (interaction: ContextMenuInteraction) => Promise<boolean> | boolean;
 }
 
 export class Handler extends Server {
@@ -16,8 +35,16 @@ export class Handler extends Server {
                 this.handleCommand(data);
         });
         this.on('autocomplete', async data => {
-            if (!eventsOptions.onAutocomplete || await eventsOptions.onAutocomplete(data))
+            if (!eventsOptions.onAutocompleteCheck || await eventsOptions.onAutocompleteCheck(data))
                 this.handleAutocomplete(data);
+        });
+        this.on('contextMenu', async data => {
+            if (!eventsOptions.onContextMenuCheck || await eventsOptions.onContextMenuCheck(data)) {
+                if (data.isMessageContext())
+                    this.handleMessageContextMenu(data);
+                else if (data.isUserContext())
+                    this.handleUserContextMenu(data);
+            }
         });
     }
 
@@ -32,17 +59,14 @@ export class Handler extends Server {
                 if (typeof getted.onBeforeExecute == 'function') {
                     const result = await getted.onBeforeExecute(interaction);
                     if (!result) {
-                        this.emit('commandCanceled', interaction);
                         if (typeof getted.onCancelExecute == 'function') {
                             await getted.onCancelExecute(interaction);
                         }
                     } else {
                         await getted.execute(interaction);
-                        return this.emit('commandExecuted', interaction);
                     }
                 } else {
                     await getted.execute(interaction);
-                    return this.emit('commandExecuted', interaction);
                 }
             } catch (e) {
                 this.emit('commandError', interaction, e);
@@ -75,6 +99,93 @@ export class Handler extends Server {
                 if (autocomplete.onAutocomplete)
                     autocomplete.onAutocomplete(interaction);
             }
+    }
+
+    async handleMessageContextMenu(interaction: MessageContextInteraction) {
+        const command = this.commands
+            .filter(x => x.type == interaction.data.type)
+            .find(x => x.name == interaction.data.name);
+
+        if (!command) return;
+        if (!command.execute) return;
+        if (command.type != 3) return;
+        try {
+            if (typeof command.onBeforeExecute == 'function') {
+                const result = await command.onBeforeExecute(interaction);
+                if (!result) {
+                    if (typeof command.onCancelExecute == 'function') {
+                        await command.onCancelExecute(interaction);
+                    }
+                } else {
+                    await command.execute(interaction);
+                }
+            } else {
+                await command.execute(interaction);
+            }
+        } catch (e) {
+            this.emit('commandError', interaction, e);
+            if (typeof command.onErrorExecute == 'function') {
+                return await command.onErrorExecute(interaction, e);
+            }
+        }
+    }
+
+    async handleUserContextMenu(interaction: UserContextInteraction) {
+        const command = this.commands
+            .filter(x => x.type == interaction.data.type)
+            .find(x => x.name == interaction.data.name);
+
+        if (!command) return;
+        if (!command.execute) return;
+        if (command.type != 2) return;
+        try {
+            if (typeof command.onBeforeExecute == 'function') {
+                const result = await command.onBeforeExecute(interaction);
+                if (!result) {
+                    if (typeof command.onCancelExecute == 'function') {
+                        await command.onCancelExecute(interaction);
+                    }
+                } else {
+                    await command.execute(interaction);
+                }
+            } else {
+                await command.execute(interaction);
+            }
+        } catch (e) {
+            this.emit('commandError', interaction, e);
+            if (typeof command.onErrorExecute == 'function') {
+                return await command.onErrorExecute(interaction, e);
+            }
+        }
+    }
+
+    async addCommandWithDirectory(dir: string) {
+        const files = await getFiles(dir);
+        for (const i of files) {
+            if (i.endsWith('.js') || i.endsWith('.ts')) {
+                let importedCommand = await import(i);
+                importedCommand = importedCommand.__esModule ? importedCommand.default : importedCommand;
+                if ([1, 2, 3].includes(importedCommand.type))
+                    this.addCommand(importedCommand);
+            }
+        }
+        return this.commands;
+    }
+
+    addCommand(command: Command) {
+        this.commands.push(command);
+        return this;
+    }
+
+    addCommands(commands: Command[]) {
+        this.commands.push(...commands);
+        return this;
+    }
+
+    registerCommands(applicationID: string) {
+        return this.rest
+            .interaction
+            .bulkOverwriteApplicationCommands(applicationID, this.commands);
     }
 
 }
