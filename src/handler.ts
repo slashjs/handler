@@ -172,12 +172,12 @@ export class Handler extends Server {
         return this.commands;
     }
 
-    addCommand(command: Command) {
+    addCommand(command: ResolvableCommand) {
         this.commands.push(command);
         return this;
     }
 
-    addCommands(commands: Command[]) {
+    addCommands(commands: ResolvableCommand[]) {
         this.commands.push(...commands);
         return this;
     }
