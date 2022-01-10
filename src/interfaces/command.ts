@@ -62,7 +62,7 @@ export interface Options {
     min_value?: number;
     max_value?: number;
     autocomplete?: boolean;
-    onAutocomplete?: (interaction: AutocompleteInteraction) => void;
+    onAutocomplete?: (interaction: AutocompleteInteraction) => Promise<void> | void;
 }
 
 export interface Choice {
