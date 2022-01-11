@@ -2,6 +2,8 @@ import { Command, CommandGroups, CommandOptions, Options, ResolvableCommand } fr
 import { AutocompleteInteraction, CommandInteraction, ContextMenuInteraction, MessageContextInteraction, Server, ServerOptions, UserContextInteraction } from '@slash.js/core';
 import fs from 'fs/promises';
 import path from 'path';
+import { ListenerFn } from 'eventemitter2';
+import { HandlerEvents } from './interfaces/events';
 
 async function getFiles(dir: string): Promise<string[]> {
 
@@ -23,6 +25,13 @@ export interface HandlerEventsOptions {
     onCommandCheck?: (interaction: CommandInteraction) => Promise<boolean> | boolean;
     onAutocompleteCheck?: (interaction: AutocompleteInteraction) => Promise<boolean> | boolean;
     onContextMenuCheck?: (interaction: ContextMenuInteraction) => Promise<boolean> | boolean;
+}
+
+export interface Handler {
+    on<E extends keyof HandlerEvents>(event: E, listener: HandlerEvents[E]): this;
+    on(event: string, listener: ListenerFn, options?: boolean): this;
+    once<E extends keyof HandlerEvents>(event: E, listener: HandlerEvents[E]): this;
+    once(event: string, listener: ListenerFn, options?: boolean): this;
 }
 
 export class Handler extends Server {
