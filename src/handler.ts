@@ -168,14 +168,13 @@ export class Handler extends Server {
         }
     }
 
-    async addCommandWithDirectory(dir: string) {
+    async addCommandWithDirectory(dir: string, method: (arg: string) => ResolvableCommand | Promise<ResolvableCommand>) {
         const files = await getFiles(dir);
         for (const i of files) {
             if (i.endsWith('.js') || i.endsWith('.ts')) {
-                let importedCommand = await import(i);
-                importedCommand = importedCommand.__esModule ? importedCommand.default : importedCommand;
-                if ([1, 2, 3].includes(importedCommand.type))
-                    this.addCommand(importedCommand);
+                const command = await method(i);
+                if ([1, 2, 3].includes(command.type))
+                    this.addCommand(command);
             }
         }
         return this.commands;

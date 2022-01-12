@@ -17,11 +17,12 @@ server.on('ready', () => {
     console.error(error);
 });
 
-server.addCommandWithDirectory(path.join(__dirname, 'commands'))
-    .then(() => {
-        server.registerCommands('829828127399870504')
-            .then(() => {
-                console.log('Registered commands');
-            })
-            .catch(console.error);
-    }).catch(console.error);
+server.addCommandWithDirectory(path.join(__dirname, 'commands'), file => {
+    return import(file).then(x => x.default);
+}).then(() => {
+    server.registerCommands('829828127399870504')
+        .then(() => {
+            console.log('Registered commands', server.commands);
+        })
+        .catch(console.error);
+}).catch(console.error);
