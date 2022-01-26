@@ -20,7 +20,7 @@ server.on('ready', () => {
 server.addCommandWithDirectory(path.join(__dirname, 'commands'), file => {
     return import(file).then(x => x.default);
 }).then(() => {
-    server.registerCommands('829828127399870504')
+    server.registerCommands('715975367688454214')
         .then(() => {
             console.log('Registered commands', server.commands);
         })

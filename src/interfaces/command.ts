@@ -6,6 +6,7 @@ import {
 export type ResolvableCommand = Command | ContextMenuMessage | ContextMenuUser;
 
 export type Command = {
+    metadata?: Record<string | number, unknown>;
     type: 1;
     description: string;
     name: string;
@@ -17,6 +18,7 @@ export type Command = {
 };
 
 export type ContextMenuUser = {
+    metadata?: Record<string | number, unknown>;
     type: 2;
     name: string;
     onBeforeExecute?: (interaction: UserContextInteraction) => Promise<boolean> | boolean;
@@ -26,6 +28,7 @@ export type ContextMenuUser = {
 };
 
 export type ContextMenuMessage = {
+    metadata?: Record<string | number, unknown>;
     type: 3;
     name: string;
     onBeforeExecute?: (interaction: MessageContextInteraction) => Promise<boolean> | boolean;
@@ -35,6 +38,7 @@ export type ContextMenuMessage = {
 };
 
 export interface CommandOptions {
+    metadata?: Record<string | number, unknown>;
     type: 1;
     options?: Options[];
     name: string;
@@ -46,6 +50,7 @@ export interface CommandOptions {
 }
 
 export interface CommandGroups {
+    metadata?: Record<string | number, unknown>;
     type: 2;
     options: CommandOptions[] | CommandGroups[];
     name: string;

@@ -4,6 +4,13 @@ export default <Command>{
     type: 1,
     name: 'autocomplete',
     description: 'autocomplete',
+    metadata: {
+        xdxdxd: true,
+        a: 'xdxd',
+        func: () => {
+            console.log('xdxd');
+        }
+    },
     options: [{
         name: 'test',
         type: 3,
