@@ -7,7 +7,11 @@ export default <ContextMenuUser>{
         xdxdxd: true,
         a: 'xdxd'
     },
-    execute(interaction) {
-        interaction.reply({ content: interaction.target.username });
+    async execute(interaction) {
+        for (let i = 0; i < 10; i++) {
+            interaction.editOrReply({
+                content: `${i}`,
+            });//hm
+        }
     }
 };

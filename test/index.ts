@@ -15,6 +15,8 @@ server.on('ready', () => {
     console.log('Ready', 'xd');
 }).on('error', (error) => {
     console.error(error);
+}).on('commandError', (command, error) => {
+    console.error(error);
 });
 
 server.addCommandWithDirectory(path.join(__dirname, 'commands'), file => {
